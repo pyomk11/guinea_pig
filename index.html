@@ -1,0 +1,388 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>당신은 기니피그인가요?</title>
+
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Jua&family=Montserrat:wght@600;800&display=swap");
+
+:root {
+  --rose: #e94f65;
+  --rose-dark: #cb3049;
+  --ink: #2f2227;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+button { -webkit-appearance: none; appearance: none; font: inherit; }
+
+body {
+  position: relative;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  overflow: hidden;
+  background-image: linear-gradient(120deg, rgba(255, 214, 206, 0.42), rgba(255, 239, 203, 0.35)), url("guinea1.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background-image 0.5s ease, filter 0.4s ease;
+  font-family: "Montserrat", "Jua", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+body::before {
+  width: 240px;
+  height: 240px;
+  top: 7%;
+  left: 8%;
+  background: radial-gradient(circle, rgba(232, 255, 242, 0.6) 0%, rgba(232, 255, 242, 0) 70%);
+}
+
+body::after {
+  width: 300px;
+  height: 300px;
+  bottom: -40px;
+  right: -10px;
+  background: radial-gradient(circle, rgba(255, 197, 177, 0.56) 0%, rgba(255, 197, 177, 0) 68%);
+}
+
+.card {
+  width: 100%;
+  max-width: 440px;
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.48), rgba(255, 246, 238, 0.42));
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 28px;
+  padding: 28px 26px 30px;
+  text-align: center;
+  box-shadow: 0 22px 50px rgba(80, 28, 42, 0.2);
+  backdrop-filter: blur(4px);
+  position: relative;
+  z-index: 10;
+  animation: card-in 0.55s ease-out both;
+}
+
+.tag {
+  display: inline-block;
+  margin-bottom: 14px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: linear-gradient(120deg, #ffe79d, #ffc4ae);
+  color: #5a2a1f;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Jua", "Apple SD Gothic Neo", sans-serif;
+  font-size: clamp(25px, 4.2vw, 32px);
+  line-height: 1.33;
+  letter-spacing: 0.01em;
+}
+
+.subtitle {
+  margin: 10px 0 24px;
+  color: #6a535b;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.btn-container {
+  position: relative;
+  width: min(300px, 100%);
+  height: 186px;
+  margin: 0 auto;
+  touch-action: none;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.66), rgba(255, 243, 236, 0.46));
+  border: 1px dashed rgba(233, 79, 101, 0.25);
+}
+
+.btn {
+  position: absolute;
+  width: 120px;
+  height: 48px;
+  border: none;
+  border-radius: 30px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  user-select: none;
+  z-index: 20;
+  pointer-events: auto;
+  transition: transform 0.12s ease, left 0.08s linear, top 0.08s linear, box-shadow 0.2s ease;
+}
+
+.btn:active { transform: scale(0.98); }
+
+.yes {
+  left: 12px;
+  top: 122px;
+  color: #fff;
+  background: linear-gradient(120deg, var(--rose), var(--rose-dark));
+  box-shadow: 0 10px 18px rgba(233, 79, 101, 0.35);
+}
+
+.yes:hover { box-shadow: 0 13px 24px rgba(233, 79, 101, 0.48); }
+
+.no {
+  left: 168px;
+  top: 16px;
+  color: #5b5658;
+  background: linear-gradient(120deg, #f0f0f0, #dadada);
+  box-shadow: 0 8px 16px rgba(93, 88, 90, 0.2);
+}
+
+.result {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: linear-gradient(120deg, #ffe8db, #fff5ce);
+  border: 1px solid rgba(233, 79, 101, 0.22);
+  font-size: 17px;
+  font-weight: 800;
+  color: #b02b44;
+  display: none;
+  animation: pop-in 0.35s ease-out both;
+}
+
+.heart {
+  position: fixed;
+  pointer-events: none;
+  white-space: pre-line;
+  text-align: center;
+  line-height: 1.15;
+  font-weight: 700;
+  animation: float 2.8s linear forwards;
+  z-index: 5;
+}
+
+@keyframes float {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-300px); opacity: 0; }
+}
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(18px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes pop-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (max-width: 520px) {
+  .card { padding: 24px 18px 24px; }
+  .btn-container { height: 178px; }
+  .btn { width: 110px; height: 46px; }
+  .yes { left: 10px; top: 118px; }
+  .no { left: 152px; top: 14px; }
+}
+</style>
+</head>
+
+<body>
+  <div class="card">
+    <h1>
+      당신은 기니피그인가요?<br>
+    </h1>
+
+    <div class="btn-container" id="btnArea">
+      <button class="btn yes" id="yesBtn" type="button">Yes</button>
+      <button class="btn no" id="noBtn" type="button">No</button>
+    </div>
+
+    <div class="result" id="result">꾸이! 꾸이꾸이꾸이. (축하합니다! 당신은 기니피그입니다.)</div>
+  </div>
+
+<script>
+(function () {
+  const yesBtn = document.getElementById("yesBtn");
+  const noBtn = document.getElementById("noBtn");
+  const btnArea = document.getElementById("btnArea");
+  const result = document.getElementById("result");
+  let lastMoveAt = Date.now();
+  let lastPointer = null;
+
+  if (!yesBtn || !noBtn || !btnArea) return;
+
+  yesBtn.addEventListener("click", () => {
+    document.body.style.backgroundImage =
+      'linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)), url("guinea2.jpg")';
+    if (result) result.style.display = "block";
+    createHearts();
+  });
+
+  function createHearts() {
+    for (let i = 0; i < 40; i += 1) {
+      const h = document.createElement("div");
+      h.className = "heart";
+      h.textContent = Math.random() < 0.5 ? "꾸이" : "꾸이!";
+      h.style.left = (Math.random() * (window.innerWidth - 80)) + "px";
+      h.style.top = (Math.random() * (window.innerHeight - 120) + 60) + "px";
+      document.body.appendChild(h);
+      setTimeout(() => h.remove(), 2800);
+    }
+  }
+
+  function clamp(v, min, max) {
+    return Math.min(max, Math.max(min, v));
+  }
+
+  function overlapsYes(x, y, w, h) {
+    const yesX = yesBtn.offsetLeft;
+    const yesY = yesBtn.offsetTop;
+    const yesW = yesBtn.offsetWidth || 120;
+    const yesH = yesBtn.offsetHeight || 48;
+    const gap = 12;
+
+    return !(
+      x + w + gap < yesX ||
+      y + h + gap < yesY ||
+      x > yesX + yesW + gap ||
+      y > yesY + yesH + gap
+    );
+  }
+
+  function moveNo(pointX, pointY) {
+    const w = noBtn.offsetWidth || 120;
+    const h = noBtn.offsetHeight || 48;
+    const maxX = Math.max(0, btnArea.clientWidth - w);
+    const maxY = Math.max(0, btnArea.clientHeight - h);
+
+    let x;
+    let y;
+
+    if (typeof pointX === "number" && typeof pointY === "number") {
+      const areaRect = btnArea.getBoundingClientRect();
+      const curX = parseFloat(noBtn.style.left) || noBtn.offsetLeft || 0;
+      const curY = parseFloat(noBtn.style.top) || noBtn.offsetTop || 0;
+      const centerX = areaRect.left + curX + w / 2;
+      const centerY = areaRect.top + curY + h / 2;
+
+      let dx = centerX - pointX;
+      let dy = centerY - pointY;
+      const len = Math.hypot(dx, dy) || 1;
+      dx /= len;
+      dy /= len;
+
+      const jump = 90 + Math.random() * 70;
+      x = clamp(curX + dx * jump, 0, maxX);
+      y = clamp(curY + dy * jump, 0, maxY);
+    } else {
+      x = Math.random() * maxX;
+      y = Math.random() * maxY;
+    }
+
+    for (let i = 0; i < 25 && overlapsYes(x, y, w, h); i += 1) {
+      x = Math.random() * maxX;
+      y = Math.random() * maxY;
+    }
+
+    noBtn.style.left = x + "px";
+    noBtn.style.top = y + "px";
+    lastMoveAt = Date.now();
+  }
+
+  function getPoint(e) {
+    if (e.touches && e.touches[0]) {
+      return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+    if (typeof e.clientX === "number" && typeof e.clientY === "number") {
+      return { x: e.clientX, y: e.clientY };
+    }
+    return null;
+  }
+
+  function evade(e) {
+    if (e.cancelable) e.preventDefault();
+    e.stopPropagation();
+    const p = getPoint(e);
+    if (p) lastPointer = p;
+    if (p) moveNo(p.x, p.y);
+    else moveNo();
+  }
+
+  function isPointerNearNo(pointer, margin) {
+    if (!pointer) return false;
+    const rect = noBtn.getBoundingClientRect();
+    return !(
+      pointer.x < rect.left - margin ||
+      pointer.x > rect.right + margin ||
+      pointer.y < rect.top - margin ||
+      pointer.y > rect.bottom + margin
+    );
+  }
+
+  function isNoInCorner() {
+    const x = parseFloat(noBtn.style.left) || noBtn.offsetLeft || 0;
+    const y = parseFloat(noBtn.style.top) || noBtn.offsetTop || 0;
+    const w = noBtn.offsetWidth || 120;
+    const h = noBtn.offsetHeight || 48;
+    const maxX = Math.max(0, btnArea.clientWidth - w);
+    const maxY = Math.max(0, btnArea.clientHeight - h);
+    const edge = 8;
+    const nearLeft = x <= edge;
+    const nearRight = x >= maxX - edge;
+    const nearTop = y <= edge;
+    const nearBottom = y >= maxY - edge;
+    return (nearLeft || nearRight) && (nearTop || nearBottom);
+  }
+
+  noBtn.tabIndex = -1;
+  noBtn.addEventListener("focus", () => {
+    noBtn.blur();
+    moveNo();
+  });
+
+  noBtn.addEventListener("pointerenter", evade);
+  noBtn.addEventListener("pointerdown", evade);
+  noBtn.addEventListener("touchstart", evade, { passive: false });
+  noBtn.addEventListener("click", evade, true);
+
+  document.addEventListener("pointermove", (e) => {
+    lastPointer = { x: e.clientX, y: e.clientY };
+    if (isPointerNearNo(lastPointer, 26)) moveNo(e.clientX, e.clientY);
+  }, { passive: true });
+
+  setInterval(() => {
+    const idleMs = Date.now() - lastMoveAt;
+    const shouldEscape = idleMs > 550 && (isNoInCorner() || isPointerNearNo(lastPointer, 18));
+    if (shouldEscape) {
+      if (lastPointer) moveNo(lastPointer.x, lastPointer.y);
+      else moveNo();
+    }
+  }, 180);
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
