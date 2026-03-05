@@ -112,8 +112,6 @@ h1 {
   margin: 0 auto;
   touch-action: none;
   border-radius: 20px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.66), rgba(255, 243, 236, 0.46));
-  border: 1px dashed rgba(233, 79, 101, 0.25);
 }
 
 .btn {
@@ -144,8 +142,8 @@ h1 {
 .yes:hover { box-shadow: 0 13px 24px rgba(233, 79, 101, 0.48); }
 
 .no {
-  left: 168px;
-  top: 16px;
+  left: 144px;
+  top: 122px;
   color: #5b5658;
   background: linear-gradient(120deg, #f0f0f0, #dadada);
   box-shadow: 0 8px 16px rgba(93, 88, 90, 0.2);
@@ -195,7 +193,7 @@ h1 {
   .btn-container { height: 178px; }
   .btn { width: 110px; height: 46px; }
   .yes { left: 10px; top: 118px; }
-  .no { left: 152px; top: 14px; }
+  .no { left: 128px; top: 118px; }
 }
 </style>
 </head>
@@ -220,8 +218,10 @@ h1 {
   const noBtn = document.getElementById("noBtn");
   const btnArea = document.getElementById("btnArea");
   const result = document.getElementById("result");
+  const startGap = 12;
   let lastMoveAt = Date.now();
   let lastPointer = null;
+  let evasionArmed = false;
 
   if (!yesBtn || !noBtn || !btnArea) return;
 
@@ -303,6 +303,18 @@ h1 {
     lastMoveAt = Date.now();
   }
 
+  function placeNoAtStart() {
+    const w = noBtn.offsetWidth || 120;
+    const h = noBtn.offsetHeight || 48;
+    const maxX = Math.max(0, btnArea.clientWidth - w);
+    const maxY = Math.max(0, btnArea.clientHeight - h);
+    const startX = yesBtn.offsetLeft + (yesBtn.offsetWidth || 120) + startGap;
+    const startY = yesBtn.offsetTop;
+    noBtn.style.left = clamp(startX, 0, maxX) + "px";
+    noBtn.style.top = clamp(startY, 0, maxY) + "px";
+    lastMoveAt = Date.now();
+  }
+
   function getPoint(e) {
     if (e.touches && e.touches[0]) {
       return { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -316,6 +328,7 @@ h1 {
   function evade(e) {
     if (e.cancelable) e.preventDefault();
     e.stopPropagation();
+    evasionArmed = true;
     const p = getPoint(e);
     if (p) lastPointer = p;
     if (p) moveNo(p.x, p.y);
@@ -361,10 +374,12 @@ h1 {
 
   document.addEventListener("pointermove", (e) => {
     lastPointer = { x: e.clientX, y: e.clientY };
+    if (!evasionArmed) return;
     if (isPointerNearNo(lastPointer, 26)) moveNo(e.clientX, e.clientY);
   }, { passive: true });
 
   setInterval(() => {
+    if (!evasionArmed) return;
     const idleMs = Date.now() - lastMoveAt;
     const shouldEscape = idleMs > 550 && (isNoInCorner() || isPointerNearNo(lastPointer, 18));
     if (shouldEscape) {
@@ -372,10 +387,21 @@ h1 {
       else moveNo();
     }
   }, 180);
+
+  placeNoAtStart();
+  window.addEventListener("resize", () => {
+    if (!evasionArmed) placeNoAtStart();
+  });
 })();
 </script>
 </body>
 </html>
+
+
+
+
+
+
 
 
 
