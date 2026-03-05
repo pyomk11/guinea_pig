@@ -153,8 +153,8 @@ h1 {
   margin-top: 16px;
   padding: 12px 14px;
   border-radius: 14px;
-  background: linear-gradient(120deg, #ffe8db, #fff5ce);
-  border: 1px solid rgba(233, 79, 101, 0.22);
+  background: linear-gradient(120deg, rgba(255, 232, 219, 0.44), rgba(255, 245, 206, 0.38));
+  border: 1px solid rgba(233, 79, 101, 0.12);
   font-size: 17px;
   font-weight: 800;
   color: #b02b44;
@@ -248,19 +248,11 @@ h1 {
     return Math.min(max, Math.max(min, v));
   }
 
-  function overlapsYes(x, y, w, h) {
+  function overlapsYes(x, y) {
     const yesX = yesBtn.offsetLeft;
     const yesY = yesBtn.offsetTop;
-    const yesW = yesBtn.offsetWidth || 120;
-    const yesH = yesBtn.offsetHeight || 48;
-    const gap = 12;
-
-    return !(
-      x + w + gap < yesX ||
-      y + h + gap < yesY ||
-      x > yesX + yesW + gap ||
-      y > yesY + yesH + gap
-    );
+    // Allow partial overlap with Yes; only prevent near-perfect stacking.
+    return Math.hypot(x - yesX, y - yesY) < 14;
   }
 
   function moveNo(pointX, pointY) {
@@ -268,14 +260,14 @@ h1 {
     const h = noBtn.offsetHeight || 48;
     const maxX = Math.max(0, btnArea.clientWidth - w);
     const maxY = Math.max(0, btnArea.clientHeight - h);
+    const curX = parseFloat(noBtn.style.left) || noBtn.offsetLeft || 0;
+    const curY = parseFloat(noBtn.style.top) || noBtn.offsetTop || 0;
 
     let x;
     let y;
 
     if (typeof pointX === "number" && typeof pointY === "number") {
       const areaRect = btnArea.getBoundingClientRect();
-      const curX = parseFloat(noBtn.style.left) || noBtn.offsetLeft || 0;
-      const curY = parseFloat(noBtn.style.top) || noBtn.offsetTop || 0;
       const centerX = areaRect.left + curX + w / 2;
       const centerY = areaRect.top + curY + h / 2;
 
@@ -293,9 +285,22 @@ h1 {
       y = Math.random() * maxY;
     }
 
-    for (let i = 0; i < 25 && overlapsYes(x, y, w, h); i += 1) {
+    for (let i = 0; i < 25 && overlapsYes(x, y); i += 1) {
       x = Math.random() * maxX;
       y = Math.random() * maxY;
+    }
+
+    // Corner clamp can keep the same position; force relocation when movement is too small.
+    if (Math.hypot(x - curX, y - curY) < 10) {
+      for (let i = 0; i < 30; i += 1) {
+        const nx = Math.random() * maxX;
+        const ny = Math.random() * maxY;
+        if (Math.hypot(nx - curX, ny - curY) < 26) continue;
+        if (overlapsYes(nx, ny)) continue;
+        x = nx;
+        y = ny;
+        break;
+      }
     }
 
     noBtn.style.left = x + "px";
@@ -304,17 +309,19 @@ h1 {
   }
 
   function placeNoAtStart() {
-    const w = noBtn.offsetWidth || 120;
-    const h = noBtn.offsetHeight || 48;
-    const maxX = Math.max(0, btnArea.clientWidth - w);
-    const maxY = Math.max(0, btnArea.clientHeight - h);
-    const startX = yesBtn.offsetLeft + (yesBtn.offsetWidth || 120) + startGap;
-    const startY = yesBtn.offsetTop;
-    noBtn.style.left = clamp(startX, 0, maxX) + "px";
-    noBtn.style.top = clamp(startY, 0, maxY) + "px";
+    const yesW = yesBtn.offsetWidth || 120;
+    const noW = noBtn.offsetWidth || 120;
+    const noH = noBtn.offsetHeight || 48;
+    const groupW = yesW + startGap + noW;
+    const maxYesX = Math.max(0, btnArea.clientWidth - groupW);
+    const maxY = Math.max(0, btnArea.clientHeight - noH);
+    const startYesX = clamp((btnArea.clientWidth - groupW) / 2, 0, maxYesX);
+    const startY = clamp(yesBtn.offsetTop || 122, 0, maxY);
+    yesBtn.style.left = startYesX + "px";
+    noBtn.style.left = (startYesX + yesW + startGap) + "px";
+    noBtn.style.top = startY + "px";
     lastMoveAt = Date.now();
   }
-
   function getPoint(e) {
     if (e.touches && e.touches[0]) {
       return { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -396,6 +403,11 @@ h1 {
 </script>
 </body>
 </html>
+
+
+
+
+
 
 
 
