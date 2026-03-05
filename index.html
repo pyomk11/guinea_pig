@@ -212,18 +212,38 @@ h1 {
     <div class="result" id="result">꾸이! 꾸이꾸이꾸이. (축하합니다! 당신은 기니피그입니다.)</div>
   </div>
 
+  <audio id="bgm" src="GGui.mp3" autoplay loop preload="auto"></audio>
+
 <script>
 (function () {
   const yesBtn = document.getElementById("yesBtn");
   const noBtn = document.getElementById("noBtn");
   const btnArea = document.getElementById("btnArea");
   const result = document.getElementById("result");
+  const bgm = document.getElementById("bgm");
   const startGap = 12;
   let lastMoveAt = Date.now();
   let lastPointer = null;
   let evasionArmed = false;
 
   if (!yesBtn || !noBtn || !btnArea) return;
+
+  function startBgm() {
+    if (!bgm) return;
+    const playPromise = bgm.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(() => {
+        // Autoplay can be blocked; user interaction listeners below retry.
+      });
+    }
+  }
+
+  startBgm();
+  window.addEventListener("load", startBgm);
+  document.addEventListener("pointerdown", startBgm, { once: true });
+  document.addEventListener("touchstart", startBgm, { once: true, passive: true });
+  document.addEventListener("keydown", startBgm, { once: true });
+
 
   yesBtn.addEventListener("click", () => {
     document.body.style.backgroundImage =
@@ -403,6 +423,10 @@ h1 {
 </script>
 </body>
 </html>
+
+
+
+
 
 
 
